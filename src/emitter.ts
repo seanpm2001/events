@@ -232,6 +232,31 @@ export class Emitter<EventsList extends Record<string | symbol | number, any>>
   }
 
   /**
+   * Listen for an event depending on a condition
+   */
+  listenIf<Event extends Constructor, ListenerClass extends Constructor>(
+    condition: boolean | (() => boolean),
+    event: Event,
+    listener: Listener<InstanceType<Event>, ListenerClass>
+  ): UnsubscribeFunction
+  listenIf<Name extends keyof EventsList, ListenerClass extends Constructor>(
+    condition: boolean | (() => boolean),
+    event: Name,
+    listener: Listener<EventsList[Name], ListenerClass>
+  ): UnsubscribeFunction
+  listenIf<Event extends AllowedEventTypes>(
+    condition: boolean | (() => boolean),
+    event: Event,
+    listener: Listener<any, Constructor>
+  ): UnsubscribeFunction {
+    if (condition === false || (typeof condition === 'function' && !condition())) {
+      return () => {}
+    }
+
+    return this.on(event, listener)
+  }
+
+  /**
    * Listen for an event only once
    */
   once<Event extends Constructor, ListenerClass extends Constructor>(

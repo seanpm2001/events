@@ -35,6 +35,26 @@ test.group('Emitter | listen', () => {
     assert.equal(emitter.eventsListeners.get('new:user')?.size, 1)
   })
 
+  test('listen for an event depending on a condition', async ({ assert }) => {
+    const stack: any[] = []
+
+    const app = new Application(BASE_URL, { environment: 'web' })
+    const emitter = new Emitter(app)
+
+    emitter.listenIf(true, 'new:user', (data) => {
+      stack.push(data)
+    })
+
+    emitter.listenIf(false, 'new:user2', (data) => {
+      stack.push(data)
+    })
+
+    await emitter.emit('new:user', { id: 1 })
+    await emitter.emit('new:user2', { id: 1 })
+    assert.deepEqual(stack, [{ id: 1 }])
+    assert.equal(emitter.eventsListeners.get('new:user')?.size, 1)
+  })
+
   test('do not register multiple listeners when callback is the same', async ({ assert }) => {
     const stack: any[] = []
 
