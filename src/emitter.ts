@@ -249,10 +249,11 @@ export class Emitter<EventsList extends Record<string | symbol | number, any>>
     event: Event,
     listener: Listener<any, Constructor>
   ): UnsubscribeFunction {
-    if (condition === false || (typeof condition === 'function' && !condition())) {
+    if (!condition || (typeof condition === 'function' && !condition())) {
       return () => {}
     }
 
+    // @ts-expect-error - TypeScript does not like overloading
     return this.on(event, listener)
   }
 
